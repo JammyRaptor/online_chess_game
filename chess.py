@@ -1,0 +1,182 @@
+import pygame as pg
+from pygame.locals import *
+from pieces import *
+from network import Network
+import Colours as c
+
+
+class Main:
+    def __init__(self):
+        self.width = 800
+        self.height = 800
+
+        self.background = pg.image.load('assets/board.png')
+        self.background = pg.transform.scale(self.background, (self.width, self.height))
+
+        pg.init()
+
+        self.win = pg.display.set_mode((self.width, self.height))
+        pg.display.set_caption('Chess')
+
+    def mainloop(self):
+        global peices1, peices2
+        clock = pg.time.Clock()
+        font = pg.font.Font('freesansbold.ttf', 50)
+
+        text = font.render('Waiting for opponent . . .', True, c.BLACK, c.WHITE)
+
+        textRect = text.get_rect()
+
+        textRect.center = (self.width // 2, self.height // 2)
+
+        start = n.send('ready')
+
+        while not start:
+            clock.tick(30)
+
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    run = False
+                    pg.quit()
+
+            self.win.fill(c.WHITE)
+
+            self.win.blit(text, textRect)
+
+            start = n.send('ready')
+            pg.display.update()
+        run = True
+
+        while run:
+
+            turn = n.send('turn')
+
+            clock.tick(60)
+
+            peices1, peices2 = setpos(n.send(get_pos(peices1, peices2)), peices1, peices2)
+
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    run = False
+                    pg.quit()
+
+                if event.type == pg.MOUSEBUTTONDOWN and turn == player:
+                    self.click(pg.mouse.get_pos())
+            root.redraw([], peices1, peices2)
+
+    def convert_loc(self, loc):
+        x, y = loc
+        x = x // (self.height // 8)
+        y = y // (self.height // 8)
+        loc = (x, y)
+        return loc
+
+    def revert_loc(self, loc):
+        x, y = loc
+        x = x * (self.height // 8)
+        y = y * (self.height // 8)
+        loc = (x, y)
+        return loc
+
+    def click(self, loc):
+
+        if player == 1:
+            me = peices1
+            notme = peices2
+        else:
+            me = peices2
+            notme = peices1
+
+        for peice in me:
+            if self.convert_loc(peice.get_location()) == self.convert_loc(loc):
+                squares = peice.generate_squares(me, notme, self.convert_loc(loc))
+
+                pg.event.get()
+                c, *_ = pg.mouse.get_pressed()
+                x, y = pg.mouse.get_pos()
+                x = x - (x // 100) * 100
+                y = y - (y // 100) * 100
+
+                while c:
+                    pg.event.get()
+
+                    peice.x, peice.y = pg.mouse.get_pos()
+                    peice.x -= x
+                    peice.y -= y
+                    c, *_ = pg.mouse.get_pressed()
+                    self.redraw(squares, me, notme)
+                peice.x, peice.y = self.revert_loc(self.convert_loc(pg.mouse.get_pos()))
+
+                valid = False
+
+                for square in squares:
+                    if (square.x, square.y) == (peice.x, peice.y):
+                        valid = True
+
+                if not valid:
+                    peice.x, peice.y = self.revert_loc(self.convert_loc(loc))
+                else:
+                    peice.moved()
+                    for p in notme:
+                        if p.x == peice.x and p.y == peice.y:
+                            p.take()
+
+    def redraw(self, extras, me, notme):
+        self.win.blit(self.background, (0, 0))
+
+        for extras in extras:
+            extras.draw(self.win)
+
+        for peice in notme + me:
+            peice.draw(self.win)
+
+        pg.display.update()
+
+    def interpret(self, xy, p):
+        for piece in p:
+            pass
+
+
+def setpos(pos, peices1, peices2):
+    for peice, p in zip(peices1, pos[0]):
+        peice.x, peice.y = p
+
+    for peice, p in zip(peices2, pos[1]):
+        peice.x, peice.y = p
+
+    return peices1, peices2
+
+
+def get_pos(peices1, peices2):
+    pos1 = []
+    pos2 = []
+    for peice in peices1:
+        pos1.append((peice.x, peice.y))
+    for peice in peices2:
+        pos2.append((peice.x, peice.y))
+
+    pos = [pos1, pos2]
+    return pos
+
+
+if __name__ == '__main__':
+    root = Main()
+    n = Network()
+    width = 800
+    peices1 = [Pawn(0, 0, 1, width), Pawn(0, 0, 1, width), Pawn(0, 0, 1, width),
+               Pawn(0, 0, 1, width), Pawn(0, 0, 1, width), Pawn(0, 0, 1, width),
+               Pawn(0, 0, 1, width), Pawn(0, 0, 1, width), Rook(0, 0, 1, width),
+               Knight(0, 0, 1, width), Bishop(0, 0, 1, width), Queen(0, 0, 1, width),
+               King(0, 0, 1, width), Bishop(0, 0, 1, width), Knight(0, 0, 1, width),
+               Rook(0, 0, 1, width)]
+
+    peices2 = [Rook(0, 0, 2, width), Knight(0, 0, 2, width), Bishop(0, 0, 2, width),
+               Queen(0, 0, 2, width), King(0, 0, 2, width), Bishop(0, 0, 2, width),
+               Knight(0, 0, 2, width), Rook(0, 0, 2, width), Pawn(0, 0, 2, width),
+               Pawn(0, 0, 2, width), Pawn(0, 0, 2, width), Pawn(0, 0, 2, width),
+               Pawn(0, 0, 2, width), Pawn(0, 0, 2, width), Pawn(0, 0, 2, width),
+               Pawn(0, 0, 2, width)]
+    peicespos, player = n.getP()
+    print(player)
+    peices1, peices2 = setpos(peicespos, peices1, peices2)
+    root.mainloop()
