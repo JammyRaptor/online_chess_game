@@ -20,19 +20,20 @@ print('waiting for a connection, server started')
 
 width = 100
 
+key = {1: 'pawn', 2: 'knight', 3: 'bishop', 4: 'rook', 5: 'queen', 6: 'king'}
 
 class ppos:
     def __init__(self):
         self.peicespos = [
-            [(1 * width, 6 * width), (2 * width, 6 * width), (3 * width, 6 * width), (4 * width, 6 * width),
-             (5 * width, 6 * width), (6 * width, 6 * width), (7 * width, 6 * width), (0 * width, 6 * width),
-             (0 * width, 7 * width), (1 * width, 7 * width), (2 * width, 7 * width), (3 * width, 7 * width),
-             (4 * width, 7 * width), (5 * width, 7 * width), (6 * width, 7 * width), (7 * width, 7 * width)],
+            [(1 * width, 6 * width,), (2 * width, 6 * width,), (3 * width, 6 * width,), (4 * width, 6 * width,),
+             (5 * width, 6 * width,), (6 * width, 6 * width,), (7 * width, 6 * width,), (0 * width, 6 * width,),
+             (0 * width, 7 * width,), (1 * width, 7 * width,), (2 * width, 7 * width,), (3 * width, 7 * width,),
+             (4 * width, 7 * width,), (5 * width, 7 * width,), (6 * width, 7 * width,), (7 * width, 7 * width,)],
 
-            [(0 * width, 0 * width), (1 * width, 0 * width), (2 * width, 0 * width), (3 * width, 0 * width),
-             (4 * width, 0 * width), (5 * width, 0 * width), (6 * width, 0 * width), (7 * width, 0 * width),
-             (0 * width, 1 * width), (1 * width, 1 * width), (2 * width, 1 * width), (3 * width, 1 * width),
-             (4 * width, 1 * width), (5 * width, 1 * width), (6 * width, 1 * width), (7 * width, 1 * width)]]
+            [(0 * width, 0 * width,), (1 * width, 0 * width,), (2 * width, 0 * width,), (3 * width, 0 * width,),
+             (4 * width, 0 * width,), (5 * width, 0 * width,), (6 * width, 0 * width,), (7 * width, 0 * width,),
+             (0 * width, 1 * width,), (1 * width, 1 * width,), (2 * width, 1 * width,), (3 * width, 1 * width,),
+             (4 * width, 1 * width,), (5 * width, 1 * width,), (6 * width, 1 * width,), (7 * width, 1 * width,)]]
 
         self.oldpos = copy.deepcopy(self.peicespos)
         self.turn = 0

@@ -10,6 +10,8 @@ class Main:
         self.width = 800
         self.height = 800
 
+        self.clock = pg.time.Clock()
+
         self.background = pg.image.load('assets/board.png')
         self.background = pg.transform.scale(self.background, (self.width, self.height))
 
@@ -20,10 +22,10 @@ class Main:
 
     def mainloop(self):
         global peices1, peices2
-        clock = pg.time.Clock()
-        font = pg.font.Font('freesansbold.ttf', 50)
 
-        text = font.render('Waiting for opponent . . .', True, c.BLACK, c.WHITE)
+        self.font = pg.font.Font('freesansbold.ttf', 50)
+
+        text = self.font.render('Waiting for opponent . . .', True, c.BLACK, c.WHITE)
 
         textRect = text.get_rect()
 
@@ -32,11 +34,10 @@ class Main:
         start = n.send('ready')
 
         while not start:
-            clock.tick(30)
+            self.clock.tick(30)
 
             for event in pg.event.get():
                 if event.type == pg.QUIT:
-                    run = False
                     pg.quit()
 
             self.win.fill(c.WHITE)
@@ -51,7 +52,7 @@ class Main:
 
             turn = n.send('turn')
 
-            clock.tick(60)
+            self.clock.tick(60)
 
             peices1, peices2 = setpos(n.send(get_pos(peices1, peices2)), peices1, peices2)
 
@@ -87,7 +88,7 @@ class Main:
             me = peices2
             notme = peices1
 
-        for peice in me:
+        for i, peice in enumerate(me):
             if self.convert_loc(peice.get_location()) == self.convert_loc(loc):
                 squares = peice.generate_squares(me, notme, self.convert_loc(loc))
 
@@ -116,10 +117,85 @@ class Main:
                 if not valid:
                     peice.x, peice.y = self.revert_loc(self.convert_loc(loc))
                 else:
-                    peice.moved()
+                    if peice.moved():
+                        selection = self.reached_end(me)
+
+                        if player == 1:
+                            if selection == 1:
+                                peices1[i] = Rook(peice.x // (self.width // 8), peice.y // (self.width // 8),
+                                                  peice.type, self.width)
+                            elif selection == 2:
+                                peices1[i] = Bishop(peice.x // (self.width // 8), peice.y // (self.width // 8),
+                                                    peice.type, self.width)
+                            elif selection == 3:
+                                peices1[i] = Knight(peice.x // (self.width // 8), peice.y // (self.width // 8),
+                                                    peice.type, self.width)
+                            elif selection == 4:
+                                peices1[i] = Queen(peice.x // (self.width // 8), peice.y // (self.width // 8),
+                                                   peice.type, self.width)
+                        else:
+                            if selection == 1:
+                                peices2[i] = Rook(peice.x // (self.width // 8), peice.y // (self.width // 8),
+                                                  peice.type, self.width)
+                            elif selection == 2:
+                                peices2[i] = Bishop(peice.x // (self.width // 8), peice.y // (self.width // 8),
+                                                    peice.type, self.width)
+                            elif selection == 3:
+                                peices2[i] = Knight(peice.x // (self.width // 8), peice.y // (self.width // 8),
+                                                    peice.type, self.width)
+                            elif selection == 4:
+                                peices2[i] = Queen(peice.x // (self.width // 8), peice.y // (self.width // 8),
+                                                   peice.type, self.width)
+                        print(peice.x, peice.y)
                     for p in notme:
                         if p.x == peice.x and p.y == peice.y:
                             p.take()
+
+    def reached_end(self, me):
+
+        r = pg.image.load(f'assets/rook{me[0].type}.png')
+        r = pg.transform.scale(r, (self.width // 8, self.width // 8))
+        b = pg.image.load(f'assets/bishop{me[0].type}.png')
+        b = pg.transform.scale(b, (self.width // 8, self.width // 8))
+        k = pg.image.load(f'assets/knight{me[0].type}.png')
+        k = pg.transform.scale(k, (self.width // 8, self.width // 8))
+        q = pg.image.load(f'assets/queen{me[0].type}.png')
+        q = pg.transform.scale(q, (self.width // 8, self.width // 8))
+
+        text = self.font.render('Select Promotion', True, c.BLACK)
+        textRect = text.get_rect()
+        textRect.center = (self.width // 2, self.height // 5)
+
+        while True:
+            self.clock.tick(30)
+
+            self.win.blit(self.background, (0, 0))
+
+            self.win.blit(text, textRect)
+
+            self.win.blit(r, self.revert_loc((2, 3)))
+            self.win.blit(b, self.revert_loc((5, 3)))
+            self.win.blit(k, self.revert_loc((2, 6)))
+            self.win.blit(q, self.revert_loc((5, 6)))
+
+            pg.display.update()
+
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    pg.quit()
+
+                if event.type == pg.MOUSEBUTTONDOWN:
+                    loc = pg.mouse.get_pos()
+                    loc = self.convert_loc(loc)
+
+                    if loc == (2, 3):
+                        return 1
+                    elif loc == (5, 3):
+                        return 2
+                    elif loc == (2, 6):
+                        return 3
+                    elif loc == (5, 6):
+                        return 4
 
     def redraw(self, extras, me, notme):
         self.win.blit(self.background, (0, 0))
@@ -131,10 +207,6 @@ class Main:
             peice.draw(self.win)
 
         pg.display.update()
-
-    def interpret(self, xy, p):
-        for piece in p:
-            pass
 
 
 def setpos(pos, peices1, peices2):
@@ -176,6 +248,7 @@ if __name__ == '__main__':
                Pawn(0, 0, 2, width), Pawn(0, 0, 2, width), Pawn(0, 0, 2, width),
                Pawn(0, 0, 2, width), Pawn(0, 0, 2, width), Pawn(0, 0, 2, width),
                Pawn(0, 0, 2, width)]
+
     peicespos, player = n.getP()
     print(player)
     peices1, peices2 = setpos(peicespos, peices1, peices2)

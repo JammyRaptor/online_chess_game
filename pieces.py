@@ -17,7 +17,7 @@ class Piece:
 
         self.moves = []
         self.extrainit()
-
+        self.piece = ''
         self.inplay = True
 
     def take(self):
@@ -92,6 +92,7 @@ class Bishop(Piece):
 
     def extrainit(self):
         self.moves = [(1, 1), (1, -1), (-1, 1), (-1, -1)]
+        self.piece = 'bishop'
 
 
 class Pawn(Piece):
@@ -101,10 +102,14 @@ class Pawn(Piece):
 
         self.first = False
 
+        if self.y == 0:
+            return True
+
     def extrainit(self):
         self.first = True
         self.moves = [(0, -1), (0, -2)]
         self.takemoves = [(-1, -1,), (1, -1)]
+        self.piece = 'pawn'
 
     def get_image(self):
         return pg.image.load(f'assets/pawn{self.type}.png')
@@ -125,6 +130,7 @@ class Pawn(Piece):
 class King(Piece):
     def extrainit(self):
         self.moves = [(0, -1), (0, 1), (-1, 0), (1, 0), (1, 1), (-1, -1), (1, -1), (-1, 1)]
+        self.piece = 'king'
 
     def get_image(self):
         return pg.image.load(f'assets/king{self.type}.png')
@@ -142,6 +148,7 @@ class King(Piece):
 class Knight(Piece):
     def extrainit(self):
         self.moves = [(-1, 2), (1, 2), (-2, 1), (2, 1), (-1, -2), (1, -2), (-2, -1), (2, -1)]
+        self.piece = 'knight'
 
     def get_image(self):
         return pg.image.load(f'assets/knight{self.type}.png')
@@ -162,6 +169,7 @@ class Rook(Piece):
 
     def extrainit(self):
         self.moves = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+        self.piece = 'rook'
 
 
 class Queen(Piece):
@@ -170,6 +178,7 @@ class Queen(Piece):
 
     def extrainit(self):
         self.moves = [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]
+        self.piece = 'queen'
 
 
 class Square:
