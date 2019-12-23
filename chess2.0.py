@@ -5,6 +5,7 @@ from network import Network
 import Colours as c
 from Meta import *
 
+
 class Main:
     def __init__(self):
         self.width = 800
@@ -27,7 +28,7 @@ class Main:
         self.win = pg.display.set_mode((self.width, self.height))
         pg.display.set_caption('Chess')
 
-    def mainloop(self, meta):
+    def mainloop(self):
         global peices1, peices2
 
         self.font = pg.font.Font('freesansbold.ttf', 50)
@@ -57,17 +58,18 @@ class Main:
 
         while run:
 
+            self.meta = n.send(('turn', self.meta))
+
             self.clock.tick(60)
 
             if player == 0:
-                meta, peices = (n.send((meta, [peices1, peices2])))
+                peices = (n.send([peices1, peices2]))
                 peices1 = peices[0]
                 peices2 = peices[1]
             else:
-                meta, peices = (n.send((meta, [self.swap_ploc(peices1), self.swap_ploc(peices2)])))
+                peices = (n.send([self.swap_ploc(peices1), self.swap_ploc(peices2)]))
                 peices1 = self.swap_ploc(peices[0])
                 peices2 = self.swap_ploc(peices[1])
-
             # print(peices)
             for event in pg.event.get():
                 if event.type == pg.QUIT:
@@ -149,8 +151,6 @@ class Main:
                 if not valid:
                     peice.x, peice.y = self.revert_loc(self.convert_loc(loc))
                 else:
-                    if meta.turn == player:
-                        meta.peicemoved = True
                     if peice.moved():
                         selection = self.reached_end(me)
 
@@ -232,18 +232,16 @@ class Main:
                         return 4
 
 
-
-
-
-
 if __name__ == '__main__':
     root = Main()
     n = Network()
     width = 800
 
-    meta, peices, player = n.getP()
-
+    peices, player = n.getP()
+    print(player)
     peices1 = peices[0]
     peices2 = peices[1]
-
-    root.mainloop(meta)
+    print(peices)
+    print(peices1)
+    print(peices2)
+    root.mainloop()

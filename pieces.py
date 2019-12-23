@@ -1,5 +1,5 @@
 import pygame as pg
-from chess import Main
+
 
 
 class Piece:
@@ -13,7 +13,7 @@ class Piece:
         self.x = x * self.width
         self.y = y * self.width
 
-        self.image = pg.transform.scale(self.image, (self.width, self.height))
+
 
         self.moves = []
         self.extrainit()
@@ -74,9 +74,9 @@ class Piece:
     def moved(self):
         pass
 
-    def draw(self, win):
+    def draw(self):
         if self.inplay:
-            win.blit(self.image, (self.x, self.y))
+            return True
 
     def get_image(self):
         pass
@@ -88,7 +88,7 @@ class Piece:
 
 class Bishop(Piece):
     def get_image(self):
-        return pg.image.load(f'assets/bishop{self.type}.png')
+        return 2
 
     def extrainit(self):
         self.moves = [(1, 1), (1, -1), (-1, 1), (-1, -1)]
@@ -112,7 +112,7 @@ class Pawn(Piece):
         self.piece = 'pawn'
 
     def get_image(self):
-        return pg.image.load(f'assets/pawn{self.type}.png')
+        return 0
 
     def generate_squares(self, peices1, peices2, loc):
         squares = []
@@ -133,7 +133,7 @@ class King(Piece):
         self.piece = 'king'
 
     def get_image(self):
-        return pg.image.load(f'assets/king{self.type}.png')
+        return 5
 
     def generate_squares(self, peices1, peices2, loc):
         squares = []
@@ -151,7 +151,7 @@ class Knight(Piece):
         self.piece = 'knight'
 
     def get_image(self):
-        return pg.image.load(f'assets/knight{self.type}.png')
+        return 1
 
     def generate_squares(self, peices1, peices2, loc):
         squares = []
@@ -165,7 +165,7 @@ class Knight(Piece):
 
 class Rook(Piece):
     def get_image(self):
-        return pg.image.load(f'assets/rook{self.type}.png')
+        return 3
 
     def extrainit(self):
         self.moves = [(0, 1), (0, -1), (1, 0), (-1, 0)]
@@ -174,7 +174,7 @@ class Rook(Piece):
 
 class Queen(Piece):
     def get_image(self):
-        return pg.image.load(f'assets/queen{self.type}.png')
+        return 4
 
     def extrainit(self):
         self.moves = [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]
