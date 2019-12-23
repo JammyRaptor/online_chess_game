@@ -5,6 +5,7 @@ from network import Network
 import Colours as c
 from Meta import *
 
+
 class Main:
     def __init__(self):
         self.width = 800
@@ -29,7 +30,7 @@ class Main:
 
     def mainloop(self, meta):
         global peices1, peices2
-
+        self.meta = meta
         self.font = pg.font.Font('freesansbold.ttf', 50)
 
         text = self.font.render('Waiting for opponent . . .', True, c.BLACK, c.WHITE)
@@ -60,11 +61,11 @@ class Main:
             self.clock.tick(60)
 
             if player == 0:
-                meta, peices = (n.send((meta, [peices1, peices2])))
+                self.meta, peices = (n.send((self.meta, [peices1, peices2])))
                 peices1 = peices[0]
                 peices2 = peices[1]
             else:
-                meta, peices = (n.send((meta, [self.swap_ploc(peices1), self.swap_ploc(peices2)])))
+                self.meta, peices = (n.send((self.meta, [self.swap_ploc(peices1), self.swap_ploc(peices2)])))
                 peices1 = self.swap_ploc(peices[0])
                 peices2 = self.swap_ploc(peices[1])
 
@@ -112,7 +113,7 @@ class Main:
         return pieces
 
     def click(self, loc):
-        print(self.convert_loc(loc))
+
         if player == 0:
             me = peices1
             notme = peices2
@@ -122,7 +123,10 @@ class Main:
 
         for i, peice in enumerate(me):
             if self.convert_loc(peice.get_location()) == self.convert_loc(loc):
-                squares = peice.generate_squares(me, notme, self.convert_loc(loc))
+                if player == self.meta.turn:
+                    squares = peice.generate_squares(me, notme, self.convert_loc(loc))
+                else:
+                    squares = []
 
                 pg.event.get()
                 c, *_ = pg.mouse.get_pressed()
@@ -149,38 +153,36 @@ class Main:
                 if not valid:
                     peice.x, peice.y = self.revert_loc(self.convert_loc(loc))
                 else:
-                    if meta.turn == player:
-                        meta.peicemoved = True
+                    if self.meta.turn == player:
+                        print('peice moved!')
+                        self.meta.peicemoved = True
                     if peice.moved():
                         selection = self.reached_end(me)
+                        self.meta.premote = True
 
+                        if selection == 1:
+                            self.meta.premotedata = (player, i,
+                                                     Rook(peice.x // (self.width // 8), peice.y // (self.width // 8),
+                                                          peice.type, self.width))
+
+
+                        elif selection == 2:
+                            self.meta.premotedata = (
+                            player, i, Bishop(peice.x // (self.width // 8), peice.y // (self.width // 8),
+                                              peice.type, self.width))
+
+                        elif selection == 3:
+
+                            self.meta.premotedata = (
+                            player, i, Knight(peice.x // (self.width // 8), peice.y // (self.width // 8),
+                                              peice.type, self.width))
+                        elif selection == 4:
+                            self.meta.premotedata = (
+                                player, i, Queen(peice.x // (self.width // 8), peice.y // (self.width // 8),
+                                                 peice.type, self.width))
                         if player == 1:
-                            if selection == 1:
-                                peices1[i] = Rook(peice.x // (self.width // 8), peice.y // (self.width // 8),
-                                                  peice.type, self.width)
-                            elif selection == 2:
-                                peices1[i] = Bishop(peice.x // (self.width // 8), peice.y // (self.width // 8),
-                                                    peice.type, self.width)
-                            elif selection == 3:
-                                peices1[i] = Knight(peice.x // (self.width // 8), peice.y // (self.width // 8),
-                                                    peice.type, self.width)
-                            elif selection == 4:
-                                peices1[i] = Queen(peice.x // (self.width // 8), peice.y // (self.width // 8),
-                                                   peice.type, self.width)
-                        else:
-                            if selection == 1:
-                                peices2[i] = Rook(peice.x // (self.width // 8), peice.y // (self.width // 8),
-                                                  peice.type, self.width)
-                            elif selection == 2:
-                                peices2[i] = Bishop(peice.x // (self.width // 8), peice.y // (self.width // 8),
-                                                    peice.type, self.width)
-                            elif selection == 3:
-                                peices2[i] = Knight(peice.x // (self.width // 8), peice.y // (self.width // 8),
-                                                    peice.type, self.width)
-                            elif selection == 4:
-                                peices2[i] = Queen(peice.x // (self.width // 8), peice.y // (self.width // 8),
-                                                   peice.type, self.width)
-
+                            self.meta.premotedata[2].x = 700 - self.meta.premotedata[2].x
+                            self.meta.premotedata[2].y = 700 - self.meta.premotedata[2].y
                     for p in notme:
                         if p.x == peice.x and p.y == peice.y:
                             p.take()
@@ -230,10 +232,6 @@ class Main:
                         return 3
                     elif loc == (5, 6):
                         return 4
-
-
-
-
 
 
 if __name__ == '__main__':

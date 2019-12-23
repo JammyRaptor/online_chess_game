@@ -4,7 +4,7 @@ from pieces import *
 import pickle
 import copy
 from Meta import *
-server = "192.168.0.28"
+server = "192.168.0.87"
 
 port = 5555
 
@@ -51,6 +51,10 @@ class ppos:
              Pawn(7, 1, 2, width)]]
         self.oldpos = copy.deepcopy(self.pieces)
 
+    def promote(self, promotiondata):
+        player, position, promotion = promotiondata
+        self.pieces[player][position] = promotion
+        print(f'promoted {self.pieces[player][position]} to {promotion}')
     def updatepos(self, pieces, player):
         self.pieces = pieces
 
@@ -83,12 +87,23 @@ def threaded_client(conn, player):
                     conn.sendall(pickle.dumps(False))
             else:
                 newmeta, positions = data
+
+
+
                 if newmeta.peicemoved:
+
                     meta = newmeta
                     meta.peicemoved = False
                     meta.swapturn()
-                if player == meta.turn:
                     p.updatepos(positions, player)
+                    if meta.premote:
+                        p.promote(meta.premotedata)
+                        meta.premote = False
+
+
+
+
+
 
                 if not data:
                     print('Dissconected')
