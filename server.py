@@ -4,6 +4,7 @@ from pieces import *
 import pickle
 import copy
 from Meta import *
+
 server = "192.168.0.87"
 
 port = 5555
@@ -55,6 +56,7 @@ class ppos:
         player, position, promotion = promotiondata
         self.pieces[player][position] = promotion
         print(f'promoted {self.pieces[player][position]} to {promotion}')
+
     def updatepos(self, pieces, player):
         self.pieces = pieces
 
@@ -88,8 +90,6 @@ def threaded_client(conn, player):
             else:
                 newmeta, positions = data
 
-
-
                 if newmeta.peicemoved:
 
                     meta = newmeta
@@ -99,11 +99,6 @@ def threaded_client(conn, player):
                     if meta.premote:
                         p.promote(meta.premotedata)
                         meta.premote = False
-
-
-
-
-
 
                 if not data:
                     print('Dissconected')
