@@ -198,8 +198,8 @@ class Main:
                                 player, i, Queen(peice.x // (self.width // 8), peice.y // (self.width // 8),
                                                  peice.type, self.width))
                         if player == 1:
-                            self.meta.premotedata[2].x = 700 - self.meta.premotedata[2].x
-                            self.meta.premotedata[2].y = 700 - self.meta.premotedata[2].y
+                            self.meta.premotedata[2].x = 7 - self.meta.premotedata[2].x
+                            self.meta.premotedata[2].y = 7 - self.meta.premotedata[2].y
                     for p in notme:
                         if p.x == peice.x and p.y == peice.y:
                             p.take()
