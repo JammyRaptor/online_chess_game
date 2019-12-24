@@ -1,7 +1,6 @@
 import pygame as pg
 
 
-
 class Piece:
     def __init__(self, x, y, type, screemWidth):
 
@@ -10,10 +9,8 @@ class Piece:
         self.width = screemWidth // 8
         self.height = screemWidth // 8
 
-        self.x = x * self.width
-        self.y = y * self.width
-
-
+        self.x = x
+        self.y = y
 
         self.moves = []
         self.extrainit()
@@ -22,10 +19,10 @@ class Piece:
 
     def take(self):
         self.inplay = False
-        self.x = 10 * self.width
-        self.y = 10 * self.width
+        self.x = 10
+        self.y = 10
 
-    def generate_squares(self, peices1, peices2, loc):
+    def generate_squares(self, peices1, peices2, loc, scale):
         squares = []
         for move in self.moves:
             looking = True
@@ -38,15 +35,15 @@ class Piece:
 
                 collide = False
                 for peice in peices1:
-                    if (x, y) == (peice.x // self.width, peice.y // self.width):
+                    if (x, y) == (peice.x // scale, peice.y // scale):
                         collide = True
                 if x > 7 or x < 0 or y > 7 or y < 0:
                     collide = True
                 if not collide:
-                    squares.append(Square(loc, mm, self.width))
+                    squares.append(Square(loc, mm, scale))
 
                     for peice in peices2:
-                        if (x, y) == (peice.x // self.width, peice.y // self.width):
+                        if (x, y) == (peice.x // scale, peice.y // scale):
                             collide = True
                     if collide:
                         looking = False
@@ -54,7 +51,7 @@ class Piece:
                     looking = False
         return squares
 
-    def checkmove(self, move, peices, loc, ):
+    def checkmove(self, move, peices, loc, scale):
         xl, yl = loc
         xm, ym = move
         xl += xm
@@ -64,7 +61,7 @@ class Piece:
             return False
 
         for p in peices:
-            if p.x // self.width == xl and p.y // self.width == yl:
+            if p.x // scale == xl and p.y // scale == yl:
                 return False
         return True
 
@@ -114,16 +111,16 @@ class Pawn(Piece):
     def get_image(self):
         return 0
 
-    def generate_squares(self, peices1, peices2, loc):
+    def generate_squares(self, peices1, peices2, loc, scale):
         squares = []
 
         for move in self.moves:
-            if self.checkmove(move, peices1 + peices2, loc):
-                squares.append(Square(loc, move, self.width))
+            if self.checkmove(move, peices1 + peices2, loc, scale):
+                squares.append(Square(loc, move, scale))
 
         for move in self.takemoves:
-            if not (self.checkmove(move, peices2, loc)):
-                squares.append(Square(loc, move, self.width))
+            if not (self.checkmove(move, peices2, loc, scale)):
+                squares.append(Square(loc, move, scale))
         return squares
 
 
@@ -135,12 +132,12 @@ class King(Piece):
     def get_image(self):
         return 5
 
-    def generate_squares(self, peices1, peices2, loc):
+    def generate_squares(self, peices1, peices2, loc, scale):
         squares = []
 
         for move in self.moves:
-            if self.checkmove(move, peices1, loc):
-                squares.append(Square(loc, move, self.width))
+            if self.checkmove(move, peices1, loc, scale):
+                squares.append(Square(loc, move, scale))
 
         return squares
 
@@ -153,12 +150,12 @@ class Knight(Piece):
     def get_image(self):
         return 1
 
-    def generate_squares(self, peices1, peices2, loc):
+    def generate_squares(self, peices1, peices2, loc, scale):
         squares = []
 
         for move in self.moves:
-            if self.checkmove(move, peices1, loc):
-                squares.append(Square(loc, move, self.width))
+            if self.checkmove(move, peices1, loc, scale):
+                squares.append(Square(loc, move, scale))
 
         return squares
 

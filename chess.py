@@ -8,8 +8,9 @@ from Meta import *
 
 class Main:
     def __init__(self):
-        self.width = 800
-        self.height = 800
+        scale = 600
+        self.width = scale
+        self.height = scale
 
         self.images = [[pg.image.load('assets/pawn1.png'), pg.image.load('assets/knight1.png'),
                         pg.image.load('assets/bishop1.png'), pg.image.load('assets/rook1.png'),
@@ -18,6 +19,10 @@ class Main:
                         pg.image.load('assets/bishop2.png'), pg.image.load('assets/rook2.png'),
                         pg.image.load('assets/queen2.png'), pg.image.load('assets/king2.png')]]
 
+        for i, image in enumerate(self.images[0]):
+            self.images[0][i] = pg.transform.scale(image, (self.width // 8, self.height // 8))
+        for i, image in enumerate(self.images[1]):
+            self.images[1][i] = pg.transform.scale(image, (self.width // 8, self.height // 8))
         self.clock = pg.time.Clock()
 
         self.background = pg.image.load('assets/board.png')
@@ -61,15 +66,15 @@ class Main:
             self.clock.tick(60)
 
             if player == 0:
-                self.meta, peices = (n.send((self.meta, [peices1, peices2])))
-                peices1 = peices[0]
-                peices2 = peices[1]
+                self.meta, peices = (n.send((self.meta, [self.shrink_coords(peices1), self.shrink_coords(peices2)])))
+                peices1 = self.enlarge_coords(peices[0])
+                peices2 = self.enlarge_coords(peices[1])
             else:
-                self.meta, peices = (n.send((self.meta, [self.swap_ploc(peices1), self.swap_ploc(peices2)])))
-                peices1 = self.swap_ploc(peices[0])
-                peices2 = self.swap_ploc(peices[1])
+                self.meta, peices = (n.send((self.meta, [self.swap_ploc(self.shrink_coords(peices1)),
+                                                         self.swap_ploc(self.shrink_coords(peices2))])))
+                peices1 = self.enlarge_coords(self.swap_ploc(peices[0]))
+                peices2 = self.enlarge_coords(self.swap_ploc(peices[1]))
 
-            # print(peices)
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     run = False
@@ -92,6 +97,18 @@ class Main:
 
         pg.display.update()
 
+    def enlarge_coords(self, peices):
+        for peice in peices:
+            peice.x *= (self.width // 8)
+            peice.y *= (self.width // 8)
+        return peices
+
+    def shrink_coords(self, peices):
+        for peice in peices:
+            peice.x //= (self.width // 8)
+            peice.y //= (self.width // 8)
+        return peices
+
     def convert_loc(self, loc):
         x, y = loc
         x = x // (self.height // 8)
@@ -108,8 +125,8 @@ class Main:
 
     def swap_ploc(self, pieces):
         for piece in pieces:
-            piece.x = 700 - piece.x
-            piece.y = 700 - piece.y
+            piece.x = 7 - piece.x
+            piece.y = 7 - piece.y
         return pieces
 
     def click(self, loc):
@@ -124,15 +141,15 @@ class Main:
         for i, peice in enumerate(me):
             if self.convert_loc(peice.get_location()) == self.convert_loc(loc):
                 if player == self.meta.turn:
-                    squares = peice.generate_squares(me, notme, self.convert_loc(loc))
+                    squares = peice.generate_squares(me, notme, self.convert_loc(loc), self.width // 8)
                 else:
                     squares = []
 
                 pg.event.get()
                 c, *_ = pg.mouse.get_pressed()
                 x, y = pg.mouse.get_pos()
-                x = x - (x // 100) * 100
-                y = y - (y // 100) * 100
+                x = x - (x // (self.width // 8)) * (self.width // 8)
+                y = y - (y // (self.width // 8)) * (self.width // 8)
 
                 while c:
                     pg.event.get()
@@ -168,14 +185,14 @@ class Main:
 
                         elif selection == 2:
                             self.meta.premotedata = (
-                            player, i, Bishop(peice.x // (self.width // 8), peice.y // (self.width // 8),
-                                              peice.type, self.width))
+                                player, i, Bishop(peice.x // (self.width // 8), peice.y // (self.width // 8),
+                                                  peice.type, self.width))
 
                         elif selection == 3:
 
                             self.meta.premotedata = (
-                            player, i, Knight(peice.x // (self.width // 8), peice.y // (self.width // 8),
-                                              peice.type, self.width))
+                                player, i, Knight(peice.x // (self.width // 8), peice.y // (self.width // 8),
+                                                  peice.type, self.width))
                         elif selection == 4:
                             self.meta.premotedata = (
                                 player, i, Queen(peice.x // (self.width // 8), peice.y // (self.width // 8),
@@ -237,7 +254,6 @@ class Main:
 if __name__ == '__main__':
     root = Main()
     n = Network()
-    width = 800
 
     meta, peices, player = n.getP()
 
