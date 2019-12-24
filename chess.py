@@ -12,10 +12,7 @@ class Main:
         self.width = scale
         self.height = scale
 
-
-
         self.clock = pg.time.Clock()
-
 
         self.resize_assets()
 
@@ -41,6 +38,8 @@ class Main:
         self.play_button = pg.image.load('assets/play_button.png')
         self.settings_button = pg.image.load('assets/settings_button.png')
         self.exit_button = pg.image.load('assets/exit_button.png')
+        self.connecting_screen = pg.image.load('assets/connecting_screen.png')
+        self.waiting_screen = pg.image.load('assets/waiting.png')
         for i, image in enumerate(self.images[0]):
             self.images[0][i] = pg.transform.scale(image, (self.width // 8, self.height // 8))
         for i, image in enumerate(self.images[1]):
@@ -55,7 +54,8 @@ class Main:
         self.play_button = pg.transform.scale(self.play_button, (self.width, self.height))
         self.settings_button = pg.transform.scale(self.settings_button, (self.width, self.height))
         self.exit_button = pg.transform.scale(self.exit_button, (self.width, self.height))
-
+        self.waiting_screen = pg.transform.scale(self.waiting_screen, (self.width, self.height))
+        self.connecting_screen = pg.transform.scale(self.connecting_screen, (self.width, self.height))
         self.win = pg.display.set_mode((self.width, self.height))
 
     def settings_menu(self):
@@ -143,11 +143,8 @@ class Main:
         self.meta = meta
         self.font = pg.font.Font('freesansbold.ttf', 50)
 
-        text = self.font.render('Waiting for opponent . . .', True, c.BLACK, c.WHITE)
 
-        textRect = text.get_rect()
 
-        textRect.center = (self.width // 2, self.height // 2)
 
         start = n.send('ready')
 
@@ -160,7 +157,7 @@ class Main:
 
             self.win.fill(c.WHITE)
 
-            self.win.blit(text, textRect)
+            self.win.blit(self.waiting_screen, (0, 0))
 
             start = n.send('ready')
             pg.display.update()
@@ -277,7 +274,6 @@ class Main:
                     peice.x, peice.y = self.revert_loc(self.convert_loc(loc))
                 else:
                     if self.meta.turn == player:
-                        print('peice moved!')
                         self.meta.peicemoved = True
                     if peice.moved():
                         selection = self.reached_end(me)
@@ -362,10 +358,31 @@ if __name__ == '__main__':
 
     root.menu()
 
-    n = Network()
 
-    meta, peices, player = n.getP()
+    while True:
+        n = Network()
+        root.clock.tick(30)
+        try:
+            meta, peices, player = n.getP()
+            break
+        except:
+            root.win.blit(root.connecting_screen, (0, 0))
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    pg.quit()
+                if event.type == pg.MOUSEBUTTONDOWN:
+                    pos = pg.mouse.get_pos()
+                    x, y = pos
+                    x, y = (x / root.width, y / root.width)
 
+                    if 0.375 < x < 0.625 and 0.777 < y < 0.926:
+                        root.menu()
+            pos = pg.mouse.get_pos()
+            x, y = pos
+            x, y = (x / root.width, y / root.width)
+            if 0.375 < x < 0.625 and 0.777 < y < 0.926:
+                root.win.blit(root.back_button, (0, 0))
+            pg.display.update()
     peices1 = peices[0]
     peices2 = peices[1]
 

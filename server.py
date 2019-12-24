@@ -55,7 +55,7 @@ class ppos:
     def promote(self, promotiondata):
         player, position, promotion = promotiondata
         self.pieces[player][position] = promotion
-        print(f'promoted {self.pieces[player][position]} to {promotion}')
+
 
     def updatepos(self, pieces, player):
         self.pieces = pieces
