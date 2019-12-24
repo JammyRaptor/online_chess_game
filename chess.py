@@ -12,26 +12,131 @@ class Main:
         self.width = scale
         self.height = scale
 
+
+
+        self.clock = pg.time.Clock()
+
+
+        self.resize_assets()
+
+        pg.init()
+        self.meta = Meta()
+        self.win = pg.display.set_mode((self.width, self.height))
+        pg.display.set_caption('Chess')
+
+    def resize_assets(self):
         self.images = [[pg.image.load('assets/pawn1.png'), pg.image.load('assets/knight1.png'),
                         pg.image.load('assets/bishop1.png'), pg.image.load('assets/rook1.png'),
                         pg.image.load('assets/queen1.png'), pg.image.load('assets/king1.png')],
                        [pg.image.load('assets/pawn2.png'), pg.image.load('assets/knight2.png'),
                         pg.image.load('assets/bishop2.png'), pg.image.load('assets/rook2.png'),
                         pg.image.load('assets/queen2.png'), pg.image.load('assets/king2.png')]]
-
+        self.background = pg.image.load('assets/board.png')
+        self.menu_background = pg.image.load('assets/menu.png')
+        self.settings_background = pg.image.load('assets/setings_background.png')
+        self.small_button = pg.image.load('assets/small_button.png')
+        self.medium_button = pg.image.load('assets/medium_button.png')
+        self.large_button = pg.image.load('assets/large_button.png')
+        self.back_button = pg.image.load('assets/back_button.png')
+        self.play_button = pg.image.load('assets/play_button.png')
+        self.settings_button = pg.image.load('assets/settings_button.png')
+        self.exit_button = pg.image.load('assets/exit_button.png')
         for i, image in enumerate(self.images[0]):
             self.images[0][i] = pg.transform.scale(image, (self.width // 8, self.height // 8))
         for i, image in enumerate(self.images[1]):
             self.images[1][i] = pg.transform.scale(image, (self.width // 8, self.height // 8))
-        self.clock = pg.time.Clock()
-
-        self.background = pg.image.load('assets/board.png')
         self.background = pg.transform.scale(self.background, (self.width, self.height))
+        self.menu_background = pg.transform.scale(self.menu_background, (self.width, self.height))
+        self.settings_background = pg.transform.scale(self.settings_background, (self.width, self.height))
+        self.small_button = pg.transform.scale(self.small_button, (self.width, self.height))
+        self.medium_button = pg.transform.scale(self.medium_button, (self.width, self.height))
+        self.large_button = pg.transform.scale(self.large_button, (self.width, self.height))
+        self.back_button = pg.transform.scale(self.back_button, (self.width, self.height))
+        self.play_button = pg.transform.scale(self.play_button, (self.width, self.height))
+        self.settings_button = pg.transform.scale(self.settings_button, (self.width, self.height))
+        self.exit_button = pg.transform.scale(self.exit_button, (self.width, self.height))
 
-        pg.init()
-        self.meta = Meta()
         self.win = pg.display.set_mode((self.width, self.height))
-        pg.display.set_caption('Chess')
+
+    def settings_menu(self):
+        running = True
+        while running:
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    pg.quit()
+                if event.type == pg.MOUSEBUTTONDOWN:
+                    pos = pg.mouse.get_pos()
+                    x, y = pos
+                    x, y = (x / self.width, y / self.width)
+                    if 0.026 < x < 0.274 and 0.427 < y < 0.726:
+                        self.width = 300
+                        self.height = 300
+                        self.resize_assets()
+                    if 0.326 < x < 0.675 and 0.427 < y < 0.726:
+                        self.width = 600
+                        self.height = 600
+                        self.resize_assets()
+                    if 0.726 < x < 0.975 and 0.377 < y < 0.726:
+                        self.width = 900
+                        self.height = 900
+                        self.resize_assets()
+                    if 0.375 < x < 0.625 and 0.777 < y < 0.926:
+                        running = False
+
+            self.win.blit(self.settings_background, (0, 0))
+
+            pos = pg.mouse.get_pos()
+            x, y = pos
+            x, y = (x / self.width, y / self.width)
+
+            if 0.026 < x < 0.274 and 0.427 < y < 0.726:
+                self.win.blit(self.small_button, (0, 0))
+            if 0.326 < x < 0.675 and 0.427 < y < 0.726:
+                self.win.blit(self.medium_button, (0, 0))
+            if 0.726 < x < 0.975 and 0.377 < y < 0.726:
+                self.win.blit(self.large_button, (0, 0))
+            if 0.375 < x < 0.625 and 0.777 < y < 0.926:
+                self.win.blit(self.back_button, (0, 0))
+
+            pg.display.update()
+
+    def menu(self):
+        running = True
+
+        while running:
+
+            self.clock.tick(30)
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    pg.quit()
+                if event.type == pg.MOUSEBUTTONDOWN:
+                    pos = pg.mouse.get_pos()
+                    x, y = pos
+                    x, y = (x / self.width, y / self.width)
+                    if 0.377 < x < 0.626 and 0.477 < y < 0.627:
+                        running = False
+
+                    if 0.276 < x < 0.726 and 0.626 < y < 0.776:
+                        self.settings_menu()
+
+                    if 0.376 < x < 0.626 and 0.777 < y < 0.926:
+                        pg.quit()
+
+            self.win.blit(self.menu_background, (0, 0))
+
+            pos = pg.mouse.get_pos()
+            x, y = pos
+            x, y = (x / self.width, y / self.width)
+
+            if 0.377 < x < 0.626 and 0.477 < y < 0.627:
+                self.win.blit(self.play_button, (0, 0))
+
+            if 0.276 < x < 0.726 and 0.626 < y < 0.776:
+                self.win.blit(self.settings_button, (0, 0))
+
+            if 0.376 < x < 0.626 and 0.777 < y < 0.926:
+                self.win.blit(self.exit_button, (0, 0))
+            pg.display.update()
 
     def mainloop(self, meta):
         global peices1, peices2
@@ -82,6 +187,7 @@ class Main:
 
                 if event.type == pg.MOUSEBUTTONDOWN:
                     self.click(pg.mouse.get_pos())
+
             root.redraw([], peices1, peices2)
 
     def redraw(self, extras, me, notme):
@@ -253,6 +359,9 @@ class Main:
 
 if __name__ == '__main__':
     root = Main()
+
+    root.menu()
+
     n = Network()
 
     meta, peices, player = n.getP()
