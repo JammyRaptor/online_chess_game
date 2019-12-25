@@ -143,9 +143,6 @@ class Main:
         self.meta = meta
         self.font = pg.font.Font('freesansbold.ttf', 50)
 
-
-
-
         start = n.send('ready')
 
         while not start:
@@ -357,7 +354,6 @@ if __name__ == '__main__':
     root = Main()
 
     root.menu()
-
 
     while True:
         n = Network()

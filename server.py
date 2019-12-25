@@ -73,6 +73,7 @@ class ppos:
 
 def threaded_client(conn, player):
     global meta
+    meta.connectedplayers[player] = True
     conn.send(pickle.dumps((meta, p.pieces, player)))
 
     # reply = ''
@@ -83,7 +84,7 @@ def threaded_client(conn, player):
 
             if data == 'ready':
 
-                if currentPlayer > 1:
+                if meta.connectedplayers[0] and  meta.connectedplayers[1]:
                     conn.sendall(pickle.dumps(True))
                 else:
                     conn.sendall(pickle.dumps(False))
@@ -114,14 +115,19 @@ def threaded_client(conn, player):
             break
     print('lost connection')
     conn.close()
-
-
+    meta.connectedplayers[player] = False
+    if not meta.connectedplayers[0] and not meta.connectedplayers[1]:
+        p.__init__()
+        meta.__init__()
+        print('game reset')
 currentPlayer = 0
 meta = Meta()
 p = ppos()
 while True:
     conn, addr = s.accept()
     print(f'connected to: {addr}')
-
-    start_new_thread(threaded_client, (conn, currentPlayer))
+    if not meta.connectedplayers[0]:
+        start_new_thread(threaded_client, (conn, 0))
+    elif not meta.connectedplayers[1]:
+        start_new_thread(threaded_client, (conn, 1))
     currentPlayer += 1

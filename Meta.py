@@ -6,6 +6,8 @@ class Meta:
         self.premote = False
         # premotedata key = (player, position, promotion)
         self.premotedata = (0, 0, 0)
+
+        self.connectedplayers = [False, False]
     def swapturn(self):
         if self.turn == 0:
             self.turn = 1
